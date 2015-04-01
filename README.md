@@ -10,9 +10,5 @@ This project requires a compiled version of [demoinfogo](https://github.com/csgo
 The project is in development and there is no working release yet.
 
 ### Version
-0.2
-
-License
-----
-MIT
+0.2.0
 
