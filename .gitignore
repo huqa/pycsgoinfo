@@ -8,3 +8,4 @@ parts
 src/*.egg-info
 lib64
 *.dem
+*.db

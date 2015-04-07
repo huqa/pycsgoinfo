@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 
 class AbstractDataResource(object):
     """ Abstract class for data resources """

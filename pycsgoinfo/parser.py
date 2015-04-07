@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 import subprocess
 import os
-#import sqlite3 as sql
+from .sqlite_resource import SqliteResource
 
 class Parser(object):
 
@@ -51,7 +52,11 @@ class Parser(object):
         self.command = str(self.path_to_demoinfogo) + ' -gameevents -nofootsteps -stringtables ' + str(self.demo_file)
         self._call_demoinfogo()
         self._parse_playerdata()
-        print(self.player_data)
+        print(self.match_data)
+        data_res = SqliteResource()
+        data_res.addMatchData(self.match_data)
+        data_res.addPlayerData(self.player_data)
+        #print(self.player_data)
 
     def _call_demoinfogo(self):
         ''' Calls demoinfogo with the demo file provided in the constructor '''
