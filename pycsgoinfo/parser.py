@@ -159,7 +159,7 @@ class Parser(object):
                     if line.find(self.player_team) > -1:
                         is_bot = int(lines[i+8].split()[1])
                         if is_bot == 0:
-                            user_id = self._get_user(lines[i+2])
+                            user_id = int(lines[i+2].split()[1])
                             #self._init_userdata(user_id)
                             teamnum = int(lines[i+3].split()[1])
                             self.player_data[user_id][self.team_id] = teamnum
