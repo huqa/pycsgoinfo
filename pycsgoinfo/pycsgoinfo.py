@@ -3,7 +3,7 @@
 
 """pycsgoinfo.pycsgoinfo: provides entry point main()."""
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 import sys, os
 from .parser import Parser
@@ -12,5 +12,5 @@ from .parser import Parser
 def main():
     print("pycsgoinfo version %s." % __version__)
     arg = sys.argv[1]
-    print("List of argument strings: %s" % arg)
+    print("Demo file: %s" % arg)
     parser = Parser(arg)

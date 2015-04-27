@@ -7,8 +7,13 @@ The resource includes basic info about the match.
 
 This project requires a compiled version of [demoinfogo](https://github.com/csgo-data/demoinfogo-linux) placed in the pycsgoinfo/lib-directory.
 
-The project is in development and there is no working release yet.
+Run pycsgoinfo from the command line using
+```
+python pycsgoinfo-runner.py mydemo.dem
+```
+
+pycsgoinfo uses sqlite as the default data resource and creates a simple database named pycsgoinfo.db after parsing.
 
 ### Version
-0.2.0
+0.2.1
 
