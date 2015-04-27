@@ -55,7 +55,7 @@ class Parser(object):
         self.command = str(self.path_to_demoinfogo) + ' -gameevents -nofootsteps -stringtables ' + str(self.demo_file)
         self._call_demoinfogo()
         self._parse_playerdata()
-        print(self.match_data)
+        #print(self.match_data)
         data_res = SqliteResource()
         self.match_id = data_res.addMatchData(self.match_data)
         data_res.addPlayerData(self.player_data)
@@ -134,6 +134,14 @@ class Parser(object):
                         user_id = self._get_user(lines[i+2])
                         #self._init_userdata(user_id)
                         self.player_data[user_id][self.bomb_defused] += 1
+                    if line.find(self.player_team) > -1:
+                        is_bot = int(lines[i+8].split()[1])
+                        if is_bot == 0:
+                            user_id = lines[i+2].split()[1].rstrip()
+                            if not self.is_int(user_id):
+                                user_id = self._get_user(lines[i+2])
+                                teamnum = int(lines[i+3].split()[1])
+                                self.player_data[user_id][self.team_id] = teamnum
                 else:
                     if line.find("0, maps/") > -1:
                         bsp = line.split()[1]
@@ -156,13 +164,6 @@ class Parser(object):
                             name = lines[i+2].split(":")[1].rstrip()
                             self.player_data[user_id][self.xuid] = xuid
                             self.player_data[user_id][self.name] = name
-                    if line.find(self.player_team) > -1:
-                        is_bot = int(lines[i+8].split()[1])
-                        if is_bot == 0:
-                            user_id = int(lines[i+2].split()[1])
-                            #self._init_userdata(user_id)
-                            teamnum = int(lines[i+3].split()[1])
-                            self.player_data[user_id][self.team_id] = teamnum
                     if line.find(self.match_start) > -1:
                         warmup_skipped = True
                         i = i + 2
@@ -208,4 +209,9 @@ class Parser(object):
                     self.name: ""
             }
 
-
+    def is_int(self, s):
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False
