@@ -89,24 +89,28 @@ class Parser(object):
                 if warmup_skipped is True:
                     # find weapon fire events - TODO don't include grenades or knives
                     if line.find(self.weapon_fire) > -1:
-                        user_id = self._get_user(lines[i+2])
+                        #user_id = self._get_user(lines[i+2])
                         #self._init_userdata(user_id)
                         weapon = self._get_weapon(lines[i+3])
                         if weapon in self.grenades:
                             if weapon == self.molotov or weapon == self.incgrenade:
-                                self.player_data[user_id][self.fire] += 1
+                                #self.player_data[user_id][self.fire] += 1
+                                self.increment_stats(lines[i+2], self.fire)
                             else:
-                                self.player_data[user_id][weapon] += 1
+                                #self.player_data[user_id][weapon] += 1
+                                self.increment_stats(lines[i+2], weapon)
                         else:
-                            self.player_data[user_id][self.weapon_fire] += 1
+                            #self.player_data[user_id][self.weapon_fire] += 1
+                            self.increment_stats(lines[i+2], self.weapon_fire)
                         # skip next five indexes
                         i = i + 5
                     # find player jump events
                     if line.find(self.player_jump) > -1:
-                        user_id = self._get_user(lines[i+2])
+                        #user_id = self._get_user(lines[i+2])
                         #self._init_userdata(user_id)
                             
-                        self.player_data[user_id][self.player_jump] += 1
+                        #self.player_data[user_id][self.player_jump] += 1
+                        self.increment_stats(lines[i+2], self.player_jump)
                         i = i + 3
                     # find player death events
                     if line.find(self.player_death) > -1:
@@ -114,34 +118,42 @@ class Parser(object):
                         attacker = self._get_user(lines[i+3])
                         assister = self._get_assister(lines[i+4])
                         if assister is not "0":
-                            self.player_data[assister][self.assists] += 1
+                            #self.player_data[assister][self.assists] += 1
+                            self.increment_stats(lines[i+4], self.assists)
                         # is death event a headshot
                         hs = int(lines[i+9].split()[1])
                         if hs == 1:
-                            self.player_data[attacker][self.headshots] += 1
-                        self.player_data[user_id][self.deaths] += 1
-                        self.player_data[attacker][self.kills] += 1
+                            #self.player_data[attacker][self.headshots] += 1
+                            self.increment_stats(lines[i+3], self.headshots)
+                        #self.player_data[user_id][self.deaths] += 1
+                        self.increment_stats(lines[i+2], self.deaths)
+                        #self.player_data[attacker][self.kills] += 1
+                        self.increment_stats(lines[i+3], self.kills)
                         i = i + 13
                     if line.find(self.round_mvp) > -1:
-                        user_id = self._get_user(lines[i+2])
+                        #user_id = self._get_user(lines[i+2])
                         #self._init_userdata(user_id)
-                        self.player_data[user_id][self.round_mvp] += 1
+                        #self.player_data[user_id][self.round_mvp] += 1
+                        self.increment_stats(lines[i+2], self.round_mvp)
                     if line.find(self.bomb_planted) > -1:
-                        user_id = self._get_user(lines[i+2])
+                        #user_id = self._get_user(lines[i+2])
                         #self._init_userdata(user_id)
-                        self.player_data[user_id][self.bomb_planted] += 1
+                        #self.player_data[user_id][self.bomb_planted] += 1
+                        self.increment_stats(lines[i+2], self.bomb_planted)
                     if line.find(self.bomb_defused) > -1:
-                        user_id = self._get_user(lines[i+2])
+                        #user_id = self._get_user(lines[i+2])
                         #self._init_userdata(user_id)
                         self.player_data[user_id][self.bomb_defused] += 1
+                        self.increment_stats(lines[i+2], self.bomb_defused)
                     if line.find(self.player_team) > -1:
                         is_bot = int(lines[i+8].split()[1])
                         if is_bot == 0:
                             user_id = lines[i+2].split()[1].rstrip()
                             if not self.is_int(user_id):
-                                user_id = self._get_user(lines[i+2])
+                                #user_id = self._get_user(lines[i+2])
                                 teamnum = int(lines[i+3].split()[1])
-                                self.player_data[user_id][self.team_id] = teamnum
+                                #self.player_data[user_id][self.team_id] = teamnum
+                                self.set_stat(lines[i+2], self.team_id, teamnum)
                 else:
                     if line.find("0, maps/") > -1:
                         bsp = line.split()[1]
@@ -172,6 +184,10 @@ class Parser(object):
         ''' Finds a users name from the provided line '''
         user_id = int(line.rstrip().strip(")").split("(")[1].split(":")[1])
         return user_id
+
+    def _get_name(self, line):
+        name = line.split(" ")[2:-1]
+        return ' '.join(name)
 
     def _get_assister(self, line):
         ''' Find assister '''
@@ -208,6 +224,32 @@ class Parser(object):
                     self.decoy: 0,
                     self.name: ""
             }
+
+    def _find_user_id_by_name(self, name):
+        for uid in self.player_data:
+            if self.player_data[uid][self.name] == name:
+                return uid
+        return None
+
+
+    def increment_stats(self, line, field):
+        user_id = self._get_user(line)
+        if user_id in self.player_data:
+            self.player_data[user_id][field] += 1
+        else:
+            user_id = self._find_user_id_by_name(self._get_name(line))
+            if user_id:
+                self.player_data[user_id][field] += 1
+
+    def set_stat(self, line, field, value):
+        user_id = self._get_user(line)
+        if user_id in self.player_data:
+            self.player_data[user_id][field] = value
+        else:
+            user_id = self._find_user_id_by_name(self._get_name(line))
+            if user_id:
+                self.player_data[user_id][field] = value
+        
 
     def is_int(self, s):
         try:
